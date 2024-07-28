@@ -1,34 +1,33 @@
-const quoteDisplay = document.getElementById('quoteDisplay');
-const newQuoteButton = document.getElementById('newQuote');
-const addQuoteForm = document.getElementById('addQuoteForm');
-const addQuoteButton = document.getElementById('addQuoteButton');
-
-let quotes = [
-    { text: 'The only way to do great work is to love what you do.', category: 'Work' },
-    // Add more quotes here
-];
-
-function showRandomQuote() {
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const randomQuote = quotes[randomIndex];
-  quoteDisplay.textContent = `"${randomQuote.text}" - ${randomQuote.category}`;
-}
-
-function createAddQuoteForm() {
-  addQuoteForm.style.display = 'block';
-  addQuoteButton.style.display = 'none';
-}
-
-function addQuote() {
-  const newQuoteText = document.getElementById('newQuoteText').value;
-  const newQuoteCategory = document.getElementById('newQuoteCategory').value;
-  quotes.push({ text: newQuoteText, category: newQuoteCategory });
-  // Clear input fields
-  document.getElementById('newQuoteText').value = '';
-  document.getElementById('newQuoteCategory').value = '';
-  // You might want to display a success message or something here
-  createAddQuoteForm(); // Hide the form after adding a quote
-}
-
-newQuoteButton.addEventListener('click', showRandomQuote);
-addQuoteButton.addEventListener('click', createAddQuoteForm);
+// Initialize an array to store quote objects  
+let quotes = [];  
+  
+// Function to display a random quote  
+function showRandomQuote() {  
+const randomIndex = Math.floor(Math.random() * quotes.length);  
+ const randomQuote = quotes[randomIndex];  
+ document.getElementById("quoteDisplay").innerHTML = `"${randomQuote.text}" - ${randomQuote.category}`;  
+}  
+  
+// Function to create and display the add quote form  
+function createAddQuoteForm() {  
+const addQuoteForm = document.getElementById("addQuoteForm");  
+ addQuoteForm.style.display = "block";  
+}  
+  
+// Function to add a new quote  
+function addQuote() {  
+const newQuoteText = document.getElementById("newQuoteText").value;  
+const newQuoteCategory = document.getElementById("newQuoteCategory").value;  
+const newQuote = { text: newQuoteText, category: newQuoteCategory };  
+  quotes.push(newQuote);  
+ document.getElementById("newQuoteText").value = "";  
+ document.getElementById("newQuoteCategory").value = "";  
+ showRandomQuote();  
+}  
+  
+// Event listeners  
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);  
+document.getElementById("addQuote").addEventListener("click", addQuote);  
+  
+// Initialize the application by displaying a random quote  
+showRandomQuote();
