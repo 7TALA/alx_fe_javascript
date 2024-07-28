@@ -106,13 +106,10 @@ async function fetchQuotesFromServer() {
         const response = await fetch('https://jsonplaceholder.typicode.com/posts');
         const data = await response.json();
         const serverQuotes = data.map(post => ({ text: post.title, category: 'Server' }));
-        quotes = mergeQuotes(serverQuotes, quotes);
-        saveQuotes();
-        populateCategories();
-        filterQuotes();
-        displayNotification('Quotes fetched from server and merged successfully!');
+        return serverQuotes;
     } catch (error) {
         console.error('Error fetching quotes from server:', error);
+        return [];
     }
 }
 
@@ -131,6 +128,17 @@ async function postQuoteToServer(quote) {
     } catch (error) {
         console.error('Error posting quote to server:', error);
     }
+}
+
+// Sync quotes with server
+async function syncQuotes() {
+    const serverQuotes = await fetchQuotesFromServer();
+    const mergedQuotes = mergeQuotes(serverQuotes, quotes);
+    quotes = mergedQuotes;
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    displayNotification('Quotes synchronized with server successfully!');
 }
 
 // Merge server quotes with local quotes, giving precedence to server data
@@ -158,8 +166,8 @@ function displayNotification(message) {
     }, 5000);
 }
 
-// Periodically fetch quotes from server
-setInterval(fetchQuotesFromServer, 60000); // Fetch quotes every 60 seconds
+// Periodically sync quotes with server
+setInterval(syncQuotes, 60000); // Sync quotes every 60 seconds
 
 // Event listener for showing a new quote
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
