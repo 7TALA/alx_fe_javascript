@@ -11,10 +11,6 @@ function saveQuotes() {
 
 // Display a random quote
 function showRandomQuote() {
-    if (quotes.length === 0) {
-        document.getElementById('quoteDisplay').innerText = "No quotes available.";
-        return;
-    }
     const filteredQuotes = getFilteredQuotes();
     if (filteredQuotes.length === 0) {
         document.getElementById('quoteDisplay').innerText = "No quotes available in this category.";
@@ -31,8 +27,10 @@ function addQuote() {
     const newQuoteText = document.getElementById('newQuoteText').value;
     const newQuoteCategory = document.getElementById('newQuoteCategory').value;
     if (newQuoteText && newQuoteCategory) {
-        quotes.push({ text: newQuoteText, category: newQuoteCategory });
+        const newQuote = { text: newQuoteText, category: newQuoteCategory };
+        quotes.push(newQuote);
         saveQuotes();
+        postQuoteToServer(newQuote);
         populateCategories();
         filterQuotes();
         document.getElementById('newQuoteText').value = '';
@@ -102,7 +100,7 @@ function importFromJsonFile(event) {
     fileReader.readAsText(event.target.files[0]);
 }
 
-// Simulate server interaction
+// Fetch quotes from server
 function fetchQuotesFromServer() {
     fetch('https://jsonplaceholder.typicode.com/posts')
         .then(response => response.json())
@@ -112,10 +110,28 @@ function fetchQuotesFromServer() {
             saveQuotes();
             populateCategories();
             filterQuotes();
-            alert('Quotes fetched from server and merged successfully!');
-        });
+            displayNotification('Quotes fetched from server and merged successfully!');
+        })
+        .catch(error => console.error('Error fetching quotes from server:', error));
 }
 
+// Post a new quote to the server
+function postQuoteToServer(quote) {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        body: JSON.stringify(quote),
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Quote posted to server:', data);
+    })
+    .catch(error => console.error('Error posting quote to server:', error));
+}
+
+// Merge server quotes with local quotes, giving precedence to server data
 function mergeQuotes(serverQuotes, localQuotes) {
     const mergedQuotes = [...localQuotes];
     const localQuotesSet = new Set(localQuotes.map(quote => quote.text));
@@ -127,6 +143,17 @@ function mergeQuotes(serverQuotes, localQuotes) {
     });
 
     return mergedQuotes;
+}
+
+// Display a notification
+function displayNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerText = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
 }
 
 // Periodically fetch quotes from server

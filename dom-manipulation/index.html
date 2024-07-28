@@ -4,30 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Quote Generator</title>
+    <style>
+        .notification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body>
     <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay">Click "Show New Quote" to see a quote.</div>
+    <div id="quoteDisplay">Click the button to display a quote</div>
     <button id="newQuote">Show New Quote</button>
-
-    <h2>Add a New Quote</h2>
-    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
-
-    <h2>Filter by Category</h2>
+    <div>
+        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+        <button onclick="addQuote()">Add Quote</button>
+    </div>
     <select id="categoryFilter" onchange="filterQuotes()">
         <option value="all">All Categories</option>
+        <!-- Dynamically populated categories -->
     </select>
-
-    <h2>Import/Export Quotes</h2>
     <button onclick="exportToJsonFile()">Export Quotes</button>
     <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
-
-    <h2>Sync with Server</h2>
-    <button id="syncButton">Sync Now</button>
-    <div id="syncStatus"></div>
-
     <script src="script.js"></script>
 </body>
 </html>
