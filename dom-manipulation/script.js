@@ -107,3 +107,30 @@ filterQuotes();
 
 // Event listener for showing a new quote
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+
+// Simulate server interaction
+function fetchQuotesFromServer() {
+    fetch('https://jsonplaceholder.typicode.com/posts')
+        .then(response => response.json())
+        .then(data => {
+            const serverQuotes = data.map(post => ({ text: post.title, category: 'Server' }));
+            quotes = mergeQuotes(serverQuotes, quotes);
+            saveQuotes();
+            populateCategories();
+            filterQuotes();
+            alert('Quotes fetched from server and merged successfully!');
+        });
+}
+
+function mergeQuotes(serverQuotes, localQuotes) {
+    const mergedQuotes = [...localQuotes];
+    const localQuotesSet = new Set(localQuotes.map(quote => quote.text));
+
+    serverQuotes.forEach(quote => {
+        if (!localQuotesSet.has(quote.text)) {
+            mergedQuotes.push(quote);
+        }
+    });
+
+    return mergedQuotes;
+}
