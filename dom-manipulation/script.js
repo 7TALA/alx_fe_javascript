@@ -15,8 +15,13 @@ function showRandomQuote() {
         document.getElementById('quoteDisplay').innerText = "No quotes available.";
         return;
     }
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    const quote = quotes[randomIndex];
+    const filteredQuotes = getFilteredQuotes();
+    if (filteredQuotes.length === 0) {
+        document.getElementById('quoteDisplay').innerText = "No quotes available in this category.";
+        return;
+    }
+    const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+    const quote = filteredQuotes[randomIndex];
     document.getElementById('quoteDisplay').innerText = quote.text;
     sessionStorage.setItem('lastViewedQuote', quote.text);
 }
@@ -29,6 +34,7 @@ function addQuote() {
         quotes.push({ text: newQuoteText, category: newQuoteCategory });
         saveQuotes();
         populateCategories();
+        filterQuotes();
         document.getElementById('newQuoteText').value = '';
         document.getElementById('newQuoteCategory').value = '';
         alert('Quote added successfully!');
@@ -40,6 +46,7 @@ function addQuote() {
 // Populate category dropdown
 function populateCategories() {
     const categoryFilter = document.getElementById('categoryFilter');
+    const selectedCategory = categoryFilter.value;
     categoryFilter.innerHTML = '<option value="all">All Categories</option>';
     const categories = [...new Set(quotes.map(quote => quote.category))];
     categories.forEach(category => {
@@ -48,12 +55,18 @@ function populateCategories() {
         option.textContent = category;
         categoryFilter.appendChild(option);
     });
+    categoryFilter.value = selectedCategory;
+}
+
+// Get quotes filtered by selected category
+function getFilteredQuotes() {
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    return selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
 }
 
 // Filter quotes by category
 function filterQuotes() {
-    const selectedCategory = document.getElementById('categoryFilter').value;
-    const filteredQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
+    const filteredQuotes = getFilteredQuotes();
     if (filteredQuotes.length > 0) {
         const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
         const quote = filteredQuotes[randomIndex];
@@ -61,6 +74,7 @@ function filterQuotes() {
     } else {
         document.getElementById('quoteDisplay').innerText = 'No quotes available in this category.';
     }
+    localStorage.setItem('selectedCategory', document.getElementById('categoryFilter').value);
 }
 
 // Export quotes to JSON file
@@ -82,31 +96,11 @@ function importFromJsonFile(event) {
         quotes.push(...importedQuotes);
         saveQuotes();
         populateCategories();
+        filterQuotes();
         alert('Quotes imported successfully!');
     };
     fileReader.readAsText(event.target.files[0]);
 }
-
-// Load the last selected category filter from local storage (if exists)
-const lastSelectedCategory = localStorage.getItem('selectedCategory');
-if (lastSelectedCategory) {
-    document.getElementById('categoryFilter').value = lastSelectedCategory;
-}
-
-// Load the last viewed quote from session storage (if exists)
-const lastViewedQuote = sessionStorage.getItem('lastViewedQuote');
-if (lastViewedQuote) {
-    document.getElementById('quoteDisplay').innerText = lastViewedQuote;
-} else {
-    showRandomQuote();
-}
-
-// Initial call to populate categories and display a quote when the page loads
-populateCategories();
-filterQuotes();
-
-// Event listener for showing a new quote
-document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 
 // Simulate server interaction
 function fetchQuotesFromServer() {
@@ -134,3 +128,27 @@ function mergeQuotes(serverQuotes, localQuotes) {
 
     return mergedQuotes;
 }
+
+// Periodically fetch quotes from server
+setInterval(fetchQuotesFromServer, 60000); // Fetch quotes every 60 seconds
+
+// Event listener for showing a new quote
+document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+
+// Load the last selected category filter from local storage (if exists)
+const lastSelectedCategory = localStorage.getItem('selectedCategory');
+if (lastSelectedCategory) {
+    document.getElementById('categoryFilter').value = lastSelectedCategory;
+}
+
+// Load the last viewed quote from session storage (if exists)
+const lastViewedQuote = sessionStorage.getItem('lastViewedQuote');
+if (lastViewedQuote) {
+    document.getElementById('quoteDisplay').innerText = lastViewedQuote;
+} else {
+    showRandomQuote();
+}
+
+// Initial call to populate categories and display a quote when the page loads
+populateCategories();
+filterQuotes();
