@@ -1,5 +1,4 @@
-// Initial array of quote objects
-let quotes = [
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Inspiration" },
     { text: "Life is 10% what happens to us and 90% how we react to it.", category: "Life" },
     { text: "Success is not how high you have climbed, but how you make a positive difference to the world.", category: "Success" }
@@ -20,9 +19,14 @@ function loadQuotes() {
 
 // Display a random quote
 function showRandomQuote() {
+    if (quotes.length === 0) {
+        document.getElementById('quoteDisplay').innerText = "No quotes available.";
+        return;
+    }
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
     document.getElementById('quoteDisplay').innerText = quote.text;
+    sessionStorage.setItem('lastViewedQuote', quote.text);
 }
 
 // Add a new quote
@@ -33,6 +37,7 @@ function addQuote() {
         quotes.push({ text: newQuoteText, category: newQuoteCategory });
         saveQuotes();
         populateCategories();
+        filterQuotes();
         document.getElementById('newQuoteText').value = '';
         document.getElementById('newQuoteCategory').value = '';
         alert('Quote added successfully!');
@@ -67,12 +72,48 @@ function filterQuotes() {
     }
 }
 
+// Export quotes to JSON file
+function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'quotes.json';
+    link.click();
+}
+
+// Import quotes from JSON file
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function(event) {
+        const importedQuotes = JSON.parse(event.target.result);
+        quotes.push(...importedQuotes);
+        saveQuotes();
+        populateCategories();
+        filterQuotes();
+        alert('Quotes imported successfully!');
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+
 // Event listener for showing a new quote
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 
-// Load quotes and categories on page load
-window.onload = function() {
-    loadQuotes();
-    populateCategories();
-    filterQuotes();
+// Load the last selected category filter from local storage (if exists)
+const lastSelectedCategory = localStorage.getItem('selectedCategory');
+if (lastSelectedCategory) {
+    document.getElementById('categoryFilter').value = lastSelectedCategory;
 }
+
+// Load the last viewed quote from session storage (if exists)
+const lastViewedQuote = sessionStorage.getItem('lastViewedQuote');
+if (lastViewedQuote) {
+    document.getElementById('quoteDisplay').innerText = lastViewedQuote;
+} else {
+    showRandomQuote();
+}
+
+// Initial call to populate categories and display a quote when the page loads
+populateCategories();
+filterQuotes();
