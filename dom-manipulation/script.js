@@ -23,14 +23,14 @@ function showRandomQuote() {
 }
 
 // Add a new quote
-function createAddQuoteForm() {
+async function createAddQuoteForm() {
     const newQuoteText = document.getElementById('newQuoteText').value;
     const newQuoteCategory = document.getElementById('newQuoteCategory').value;
     if (newQuoteText && newQuoteCategory) {
         const newQuote = { text: newQuoteText, category: newQuoteCategory };
         quotes.push(newQuote);
         saveQuotes();
-        postQuoteToServer(newQuote);
+        await postQuoteToServer(newQuote);
         populateCategories();
         filterQuotes();
         document.getElementById('newQuoteText').value = '';
@@ -101,34 +101,36 @@ function importFromJsonFile(event) {
 }
 
 // Fetch quotes from server
-function fetchQuotesFromServer() {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-        .then(response => response.json())
-        .then(data => {
-            const serverQuotes = data.map(post => ({ text: post.title, category: 'Server' }));
-            quotes = mergeQuotes(serverQuotes, quotes);
-            saveQuotes();
-            populateCategories();
-            filterQuotes();
-            displayNotification('Quotes fetched from server and merged successfully!');
-        })
-        .catch(error => console.error('Error fetching quotes from server:', error));
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const data = await response.json();
+        const serverQuotes = data.map(post => ({ text: post.title, category: 'Server' }));
+        quotes = mergeQuotes(serverQuotes, quotes);
+        saveQuotes();
+        populateCategories();
+        filterQuotes();
+        displayNotification('Quotes fetched from server and merged successfully!');
+    } catch (error) {
+        console.error('Error fetching quotes from server:', error);
+    }
 }
 
 // Post a new quote to the server
-function postQuoteToServer(quote) {
-    fetch('https://jsonplaceholder.typicode.com/posts', {
-        method: 'POST',
-        body: JSON.stringify(quote),
-        headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
+async function postQuoteToServer(quote) {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            body: JSON.stringify(quote),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        });
+        const data = await response.json();
         console.log('Quote posted to server:', data);
-    })
-    .catch(error => console.error('Error posting quote to server:', error));
+    } catch (error) {
+        console.error('Error posting quote to server:', error);
+    }
 }
 
 // Merge server quotes with local quotes, giving precedence to server data
