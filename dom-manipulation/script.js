@@ -138,7 +138,7 @@ async function syncQuotes() {
     saveQuotes();
     populateCategories();
     filterQuotes();
-    displayNotification('Quotes synchronized with server successfully!');
+    displayNotification('Quotes synced with server!');
 }
 
 // Merge server quotes with local quotes, giving precedence to server data
