@@ -23,7 +23,7 @@ function showRandomQuote() {
 }
 
 // Add a new quote
-async function createAddQuoteForm() {
+async function addQuote() {
     const newQuoteText = document.getElementById('newQuoteText').value;
     const newQuoteCategory = document.getElementById('newQuoteCategory').value;
     if (newQuoteText && newQuoteCategory) {
@@ -123,7 +123,7 @@ async function postQuoteToServer(quote) {
             method: 'POST',
             body: JSON.stringify(quote),
             headers: {
-                'Content-type': 'application/json; charset=UTF-8',
+                'Content-Type': 'application/json; charset=UTF-8',
             },
         });
         const data = await response.json();
